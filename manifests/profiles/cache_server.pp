@@ -43,6 +43,14 @@ class coi::profiles::cache_server inherits coi::profiles::base {
       creates => '/var/www/packages/simple', # It *does*, but you'll want to force a refresh if you change the line above
       require => Exec['pip2pi'],
     }
+   #
+   # TODO - this is one of the few differneces between this and ciscos code
+   #   for some reason, the default apache config was missing...
+    file { '/etc/apache2/sites-enabled/default':
+      ensure => link,
+      target => '/etc/apache2/sites-available/default',
+      notify => Service['httpd'],
+    }
   }
 
 }
