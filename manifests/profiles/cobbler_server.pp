@@ -118,6 +118,8 @@ class coi::profiles::cobbler_server(
     $ip_real = $ip
   }
 
+  $build_node_fqdn = "${build_node_name}.${domain_name}"
+
   # Enable ipv6 router edvertisement
   # TODO, I would like more docs here about why this is required
   $ipv6_ra          = hiera('ipv6_ra', '')
