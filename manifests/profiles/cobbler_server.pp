@@ -2,35 +2,57 @@
 # Configures the cobbler server that is used by Cisco's
 # openstack installer.
 #
-class coi::profiles::cobbler_server inherits coi::profiles::base {
-
-  # this may need to lookup cobbler node to be more flexible
-  $build_node_name   = hiera('build_node_name')
+# [build_node_name]
+#   Hostname of the build node.
+# [cobbler_node_ip]
+#   The ip address of the node that is on the same network as the nodes
+#   that it prvisions.
+# [node_subnet]
+# [node_netmask]
+# [node_gateway]
+# [domain_name]
+# [cobbler_proxy]
+# [proxy]
+# [admin_user]
+# [admin_password]
+# [autostart_puppet]
+# [ucsm_port]
+# [public_interface]
+# [private_interface
+# [external_interface]
+# [install_drive]
+# [node_dns]
+# [ip]
+# [dns_service]
+# [dhcp_service]
+#
+class coi::profiles::cobbler_server(
+  $build_node_name   = hiera('build_node_name'),
 
   ########### Build Node Cobbler Variables ############
   # Change these 5 parameters to define the IP address and other network settings of your build node
   # The cobbler node *must* have this IP configured and it *must* be on the same network as
   # the hosts to install
-  $cobbler_node_ip  = hiera('cobbler_node_ip')
-  $node_subnet      = hiera('node_subnet')
-  $node_netmask     = hiera('node_netmask', '255.255.255.0')
+  $cobbler_node_ip  = hiera('cobbler_node_ip'),
+  $node_subnet      = hiera('node_subnet'),
+  $node_netmask     = hiera('node_netmask', '255.255.255.0'),
   # This gateway is optional - if there's a gateway providing a default route, put it here
   # If not, comment it out
-  $node_gateway     = hiera('node_gateway')
+  $node_gateway     = hiera('node_gateway'),
   # This domain name will be the name your build and compute nodes use for the local DNS
   # It doesn't have to be the name of your corporate DNS - a local DNS server on the build
   # node will serve addresses in this domain - but if it is, you can also add entries for
   # the nodes in your corporate DNS environment they will be usable *if* the above addresses
   # are routeable from elsewhere in your network.
-  $domain_name      = hiera('domain_name')
+  $domain_name      = hiera('domain_name'),
   # This setting likely does not need to be changed
   # To speed installation of your OpenStack nodes, it configures your build node to function
   # as a caching proxy storing the Ubuntu install files used to deploy the OpenStack nodes
-  $cobbler_proxy    = hiera('cobbler_proxy', "http://${cobbler_node_ip}:3142/")
+  $cobbler_proxy    = hiera('cobbler_proxy', "http://${cobbler_node_ip}:3142/"),
   # This setting likely does not need to be changed
   # To speed installation of your OpenStack nodes, it configures your build node to function
   # as a caching proxy storing the Ubuntu install files used to deploy the OpenStack nodes
-  $proxy            = hiera('proxy_node', false)
+  $proxy            = hiera('proxy_node', false),
 
   ####### Preseed File Configuration #######
   # This will build a preseed file called 'cisco-preseed' in /etc/cobbler/preseeds/
@@ -38,9 +60,9 @@ class coi::profiles::cobbler_server inherits coi::profiles::base {
   #
   # The following variables may be changed by the system admin:
   # 1) admin_user
-  $admin_user       = hiera('admin_user', 'localadmin')
+  $admin_user       = hiera('admin_user', 'localadmin'),
   # 2) password_crypted
-  $password_crypted = hiera('password_crypted')
+  $password_crypted = hiera('password_crypted'),
   # Default user is: localadmin
   # Default SHA-512 hashed password is "ubuntu": $6$UfgWxrIv$k4KfzAEMqMg.fppmSOTd0usI4j6gfjs0962.JXsoJRWa5wMz8yQk4SfInn4.WZ3L/MCt5u.62tHDGB36EhiKF1
   # To generate a new SHA-512 hashed password, run the following replacing
@@ -48,13 +70,13 @@ class coi::profiles::cobbler_server inherits coi::profiles::base {
   # $password_crypted variable
   # python -c "import crypt, getpass, pwd; print crypt.crypt('password', '\$6\$UfgWxrIv\$')"
   # 3) autostart_puppet -- whether the puppet agent will auto start
-  $autostart_puppet = hiera('autostart_puppet', true)
+  $autostart_puppet = hiera('autostart_puppet', true),
 
   # If the setup uses the UCS Bseries blades, enter the port on which the
   # ucsm accepts requests. By default the UCSM is enabled to accept requests
   # on port 443 (https). If https is disabled and only http is used, set
   # $ucsm_port = '80'
-  $ucsm_port        = hiera('ucsm_port', '443')
+  $ucsm_port        = hiera('ucsm_port', '443'),
 
   # These next three parameters specify the networking hardware used in each node
   # Current assumption is that all nodes have the same network interfaces and are
@@ -62,25 +84,39 @@ class coi::profiles::cobbler_server inherits coi::profiles::base {
   #
   # Specify which interface in each node is the API Interface
   # This is also known as the Management Interface
-  $public_interface   = hiera('public_interface', 'eth0')
+  $public_interface   = hiera('public_interface', 'eth0'),
   # Define the interface used for vm networking connectivity when nova-network is being used.
   # Quantum does not require this value, so using eth0 will typically be fine.
-  $private_interface  = hiera('private_interface', 'eth0')
+  $private_interface  = hiera('private_interface', 'eth0'),
   # Specify the interface used for external connectivity such as floating IPs (only in network/controller node)
-  $external_interface = hiera('external_interface', 'eth1')
+  $external_interface = hiera('external_interface', 'eth1'),
 
   # Select the drive on which Ubuntu and OpenStack will be installed in each node. Current assumption is
   # that all nodes will be installed on the same device name
-  $install_drive    = hiera('install_drive', '/dev/sda')
+  $install_drive    = hiera('install_drive', '/dev/sda'),
 
   ### Advanced Users Configuration ###
   # These four settings typically do not need to be changed
   # In the default deployment, the build node functions as the DNS and static DHCP server for
   # the OpenStack nodes. These settings can be used if alternate configurations are needed
-  $node_dns         = hiera('node_dns', $cobbler_node_ip)
-  $ip               = hiera('cobbler_ip', $cobbler_node_ip)
-  $dns_service      = hiera('dns_service', 'dnsmasq')
-  $dhcp_service     = hiera('dhcp_service', 'dnsmasq')
+  $node_dns         = hiera('node_dns', false),
+  $ip               = hiera('cobbler_ip', false),
+  $dns_service      = hiera('dns_service', 'dnsmasq'),
+  $dhcp_service     = hiera('dhcp_service', 'dnsmasq'),
+) inherits coi::profiles::base {
+
+
+  if ! $node_dns {
+    $node_dns_real = $cobbler_node_ip
+  } else {
+    $node_dns_real = $node_dns
+  }
+
+  if ! $ip {
+    $ip_real = $cobbler_node_ip
+  } else {
+    $ip_real = $ip
+  }
 
   # Enable ipv6 router edvertisement
   # TODO, I would like more docs here about why this is required
@@ -145,8 +181,8 @@ echo -e "%s
     node_subnet      => $node_subnet,
     node_netmask     => $node_netmask,
     node_gateway     => $node_gateway,
-    node_dns         => $node_dns,
-    ip               => $ip,
+    node_dns         => $node_dns_real,
+    ip               => $ip_real,
     dns_service      => $dns_service,
     dhcp_service     => $dhcp_service,
   # change these two if a dynamic DHCP pool is needed

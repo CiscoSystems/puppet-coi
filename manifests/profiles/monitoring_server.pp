@@ -1,14 +1,16 @@
 #
 # hosts all services that centrally collect monitoring data
 #
-class coi::profiles::monitoring_server inherits coi::profiles::base {
+class coi::profiles::monitoring_server(
+  # TODO why is build_node_fqdn for?
+  # why would it not just be fqdn?
+  # should this default to 0.0.0.0 ?
+  #$graphitehost  => hiera('build_node_fqdn', $::fqdn)
+)  inherits coi::profiles::base {
 
   class { 'naginator': }
 
   class { 'graphite':
-    # TODO why is build_node_fqdn for?
-    # why would it not just be fqdn?
-    # should this default to 0.0.0.0 ?
-    graphitehost  => hiera('build_node_fqdn', $::fqdn)
+  #  graphitehost  => $graphitehost,
   }
 }

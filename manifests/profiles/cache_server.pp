@@ -1,10 +1,19 @@
-class coi::profiles::cache_server inherits coi::profiles::base {
-
-  $default_gateway = hiera('default_gateway', false)
+#
+# configures the proxies used by openstack nodes
+#
+# == Parameters
+#  [default_gateway]
+#  [proxy]
+#    External proxy to use.
+#
+class coi::profiles::cache_server(
+  $default_gateway = hiera('default_gateway', false),
   $proxy           = hiera('proxy', undef)
+) inherits coi::profiles::base {
+
 
   class { apt-cacher-ng:
-    proxy     => $proxy,
+    proxy           => $proxy,
     avoid_if_range  => true, # Some proxies have issues with range headers
                              # this stops us attempting to use them
                              # marginally less efficient with other proxies
@@ -13,6 +22,8 @@ class coi::profiles::cache_server inherits coi::profiles::base {
   # TODO what does this mean?
   if ! $default_gateway {
     # Prefetch the pip packages and put them somewhere the openstack nodes can fetch them
+
+    include pip
 
     file {  "/var/www":
       ensure => 'directory',

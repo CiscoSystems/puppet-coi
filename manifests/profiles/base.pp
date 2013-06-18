@@ -2,10 +2,16 @@
 # this class stores base configurations
 # that should be applied to all nodes
 #
-class coi::profiles::base {
+# == Parameters
+#   [ntp_server]
+#     List of ntp servers to use for time synchronization.
+#
+class coi::profiles::base(
+  $ntp_servers = hiera('ntp_servers'),
+) {
 
   class { ntp:
-    servers    => hiera('ntp_servers'),
+    servers    => $ntp_servers,
     ensure     => running,
     autoupdate => true,
   }
