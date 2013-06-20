@@ -48,12 +48,19 @@ class coi::profiles::cache_server(
     Package <| provider=='pip' |> {
       require => Exec['pip-cache']
     }
+
+    ensure_resource('package', 'python-twisted', {'ensure' => 'installed' })
+
     exec { 'pip-cache':
       # All the packages that all nodes - build, compute and control - require from pip
       command => "${proxy_pfx}/usr/local/bin/pip2pi /var/www/packages collectd xenapi django-tagging graphite-web carbon whisper",
       creates => '/var/www/packages/simple', # It *does*, but you'll want to force a refresh if you change the line above
-      require => Exec['pip2pi'],
+      require => [Exec['pip2pi'], Package['python-twisted']],
     }
+
+
+   include apache
+
    #
    # TODO - this is one of the few differneces between this and ciscos code
    #   for some reason, the default apache config was missing...
