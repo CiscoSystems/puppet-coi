@@ -106,7 +106,7 @@ UcXHbA==
     Yumrepo <| |> -> Package <| |>
   }
 
-  class { pip: }
+  include pip
 
   # Ensure that the pip packages are fetched appropriately when we're using an
   # install where there's no direct connection to the net from the openstack
