@@ -36,6 +36,9 @@ class coi::profiles::openstack::base (
     # Load apt prerequisites.  This is only valid on Ubuntu systmes
 
     if($package_repo == 'cisco_repo') {
+      if ! $openstack_repo_location {
+        fail("Parameter openstack_repo_location must be set when package_repo is cisco_repo")
+      }
       apt::source { "cisco-openstack-mirror_grizzly":
         location    => $openstack_repo_location,
         release     => $openstack_release,
