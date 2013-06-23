@@ -32,7 +32,13 @@ class coi::profiles::openstack::compute (
   #$enable_dhcp_agent        = hiera('false')
   # general
   #$enabled                  = hiera('true')
-  $verbose                  = hiera('verbose', false)
+  $verbose                  = hiera('verbose', false),
+  # TODO
+  # this is only here b/c special permissions need to be added when we
+  # use the packages from cisco's repo. This should just be here
+  # temporarily until cisco updates to use the same version of
+  # the libvirt package as upstream
+  $package_repo             = hiera('package_repo', 'cisco_repo')
 ) inherits coi::profiles::openstack::base {
 
   class { '::openstack::compute':
@@ -73,4 +79,15 @@ class coi::profiles::openstack::compute (
   }
 
   class { "naginator::compute_target": }
+
+  # this is an example of something that needs to be
+  # configured only when we use the cisco package repos.
+  # I hope this is considered a temporary fix until we
+  # can make our packages more similar to those in cloud
+  # archive
+  if $package_repo == 'cisco_repo' {
+    realize File['/etc/libvirt/qemu.conf']
+    realize Exec[ '/etc/init.d/libvirt-bin restart']
+  }
+
 }
