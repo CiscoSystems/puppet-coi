@@ -41,7 +41,10 @@ class coi::profiles::openstack::controller (
   $cinder_db_password       = hiera('cinder_db_password'),
   $external_interface       = hiera('external_interface'),
   $auto_assign_floating_ip  = hiera('auto_assign_floating_ip', false),
-  $multi_host               = true
+  $multi_host               = true,
+  $swift                    = hiera('swift', false),
+  $swift_user_password      = hiera('swift_user_password', false),
+  $swift_public_address     = hiera('swift_public_address', false),
 ) inherits coi::profiles::openstack::base {
 
   class { '::openstack::controller':
@@ -97,6 +100,10 @@ class coi::profiles::openstack::controller (
     # cinder
     cinder_user_password    => $cinder_user_password,
     cinder_db_password      => $cinder_db_password,
+    # swift
+    swift                   => $swift,
+    swift_user_password     => $swift_user_password,
+    swift_public_address    => $swift_public_address,
   }
 
   include naginator::control_target
