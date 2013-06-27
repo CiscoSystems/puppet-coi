@@ -99,12 +99,22 @@ UcXHbA==
     }
   }
   elsif ($osfamily == 'redhat') {
+
     yumrepo { 'cisco-openstack-mirror':
-      descr     => "Cisco Openstack Repository",
+      descr    => 'Cisco Openstack Repository',
       baseurl  => $location,
-      gpgcheck => "0", #TODO(prad): Add gpg key
-      enabled  => "1";
+      gpgcheck => '0', #TODO: Add gpg key
+      enabled  => '1';
     }
+
+    yumrepo { 'openstack-grizzly':
+      descr    => 'OpenStack Grizzly Repository',
+      baseurl  => 'http://repos.fedorapeople.org/repos/openstack/openstack-grizzly/epel-6/',
+      gpgkey   => 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-Grizzly',
+      gpgcheck => '1',
+      enabled  => '1';
+    }
+
     # add a resource dependency so yumrepo loads before package
     Yumrepo <| |> -> Package <| |>
   }
@@ -136,7 +146,7 @@ UcXHbA==
   }
 
   class { 'collectd':
-    graphitehost         => $build_node_fqdn,
-    management_interface => $public_interface,
+    #graphitehost         => $build_node_fqdn,
+    #management_interface => $public_interface,
   }
 }
