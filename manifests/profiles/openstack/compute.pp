@@ -1,37 +1,25 @@
 class coi::profiles::openstack::compute (
-#  $db_host            => $controller_node_internal,
-#  $keystone_host      => $controller_node_internal,
-#  $quantum_host       => $controller_node_internal,
   $controller_node_internal = hiera('controller_node_internal'),
   $internal_address         = hiera('internal_ip'),
   $libvirt_type             = hiera('libvirt_type', 'kvm'),
   $multi_host               = hiera('multi_host', true),
-  # rabbit
-  #$rabbit_host              = hiera('controller_node_internal')
   $rabbit_password          = hiera('rabbit_password'),
   $rabbit_user              = hiera('rabbit_user', 'openstack_rabbit_user'),
   # nova
   $nova_user_password       = hiera('nova_user_password'),
   $nova_db_password         = hiera('nova_db_password'),
-  #$glance_api_servers       = hiera('"${controller_node_internal}:9292"')
-  #$vncproxy_host            = hiera('$controller_node_public')
-  #$vnc_enabled              = hiera('true')
+  $vncproxy_host            = hiera('controller_node_public'),
+  $vnc_enabled              = hiera('vnc_enabled', 'true'),
   # cinder parameters
   $cinder_db_password       = hiera('cinder_db_password'),
-  #$manage_volumes           = hiera('true')
-  #$volume_group             = hiera('cinder-volumes')
-  #$setup_test_volume        = hiera('true')
+  $manage_volumes           = hiera('manage_volumes', 'true'),
+  $volume_group             = hiera('volume_group', 'cinder-volumes'),
+  $setup_test_volume        = hiera('setup_test_volume', 'true'),
   # quantum config
-  #$quantum                  = hiera('true')
   $quantum_user_password    = hiera('quantum_user_password'),
   # Quantum OVS
-  #$enable_ovs_agent         = hiera('true')
   $tunnel_ip                = hiera('tunnel_ip'),
   # Quantum L3 Agent
-  #$enable_l3_agent          = hiera('false')
-  #$enable_dhcp_agent        = hiera('false')
-  # general
-  #$enabled                  = hiera('true')
   $verbose                  = hiera('verbose', false),
   # TODO
   # this is only here b/c special permissions need to be added when we
@@ -43,29 +31,29 @@ class coi::profiles::openstack::compute (
 
   class { '::openstack::compute':
     # keystone
-    db_host            => $controller_node_internal,
-    keystone_host      => $controller_node_internal,
-    quantum_host       => $controller_node_internal,
-    internal_address   => $internal_ip,
-    libvirt_type       => $libvirt_type,
-    multi_host         => $multi_host,
+    db_host               => $controller_node_internal,
+    keystone_host         => $controller_node_internal,
+    quantum_host          => $controller_node_internal,
+    internal_address      => $internal_address,
+    libvirt_type          => $libvirt_type,
+    multi_host            => $multi_host,
     # rabbit
-    rabbit_host        => $controller_node_internal,
-    rabbit_password    => $rabbit_password,
-    rabbit_user        => $rabbit_user,
+    rabbit_host           => $controller_node_internal,
+    rabbit_password       => $rabbit_password,
+    rabbit_user           => $rabbit_user,
     # nova
-    nova_user_password => $nova_user_password,
-    nova_db_password   => $nova_db_password,
-    glance_api_servers => "${controller_node_internal}:9292",
-    vncproxy_host      => $controller_node_public,
-    vnc_enabled        => true,
+    nova_user_password    => $nova_user_password,
+    nova_db_password      => $nova_db_password,
+    glance_api_servers    => "${controller_node_internal}:9292",
+    vncproxy_host         => $vncproxy_host,
+    vnc_enabled           => true,
     # cinder parameters
     cinder_db_password    => $cinder_db_password,
-    manage_volumes        => true,
-    volume_group          => 'cinder-volumes',
-    setup_test_volume     => true,
+    manage_volumes        => $manage_volumes,
+    volume_group          => $volume_group,
+    setup_test_volume     => $setup_test_volume,
     # quantum config
-    quantum                               => true,
+    quantum               => true,
     quantum_user_password => $quantum_user_password,
     # Quantum OVS
     enable_ovs_agent      => true,
