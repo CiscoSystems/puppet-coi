@@ -107,13 +107,7 @@ UcXHbA==
       enabled  => '1';
     }
 
-    yumrepo { 'openstack-grizzly':
-      descr    => 'OpenStack Grizzly Repository',
-      baseurl  => 'http://repos.fedorapeople.org/repos/openstack/openstack-grizzly/epel-6/',
-      gpgkey   => 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-Grizzly',
-      gpgcheck => '1',
-      enabled  => '1';
-    }
+    include openstack::repo::rdo
 
     # add a resource dependency so yumrepo loads before package
     Yumrepo <| |> -> Package <| |>
