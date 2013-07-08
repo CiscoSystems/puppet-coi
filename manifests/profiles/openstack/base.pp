@@ -112,7 +112,7 @@ UcXHbA==
       }
 
       file { '/etc/pki/rpm-gpg/RPM-GPG-KEY-Cisco':
-        source => 'puppet:///modules/openstack/RPM-GPG-KEY-Cisco',
+        source => 'puppet:///modules/coi/RPM-GPG-KEY-Cisco',
         owner  => root,
         group  => root,
         mode   => 644,
