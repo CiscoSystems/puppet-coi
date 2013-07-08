@@ -100,13 +100,29 @@ UcXHbA==
   }
   elsif ($osfamily == 'redhat') {
 
-    yumrepo { 'cisco-openstack-mirror':
-      descr    => 'Cisco Openstack Repository',
-      baseurl  => $location,
-      gpgcheck => '0', #TODO: Add gpg key
-      enabled  => '1';
+    if($package_repo == 'cisco_repo') {
+
+      # A cisco yum repo to carry any custom patched rpms
+      yumrepo { 'cisco-openstack-mirror':
+        descr    => 'Cisco Openstack Repository',
+        baseurl  => $location,
+        enabled  => '1',
+        gpgcheck => '1',
+        gpgkey   => 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Cisco',
+      }
+
+      file { '/etc/pki/rpm-gpg/RPM-GPG-KEY-Cisco':
+        source => 'puppet:///modules/openstack/RPM-GPG-KEY-Cisco',
+        owner  => root,
+        group  => root,
+        mode   => 644,
+      }
     }
 
+    # include epel to satisfy necessary dependencies
+    include openstack::repo::epel
+
+    # includes RDO openstack upstream repo
     include openstack::repo::rdo
 
     # add a resource dependency so yumrepo loads before package
