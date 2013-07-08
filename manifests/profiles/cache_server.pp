@@ -12,7 +12,7 @@ class coi::profiles::cache_server(
 ) inherits coi::profiles::base {
  
   class { apt-cacher-ng:
-    proxy     => $::proxy,
+    proxy     => $proxy,
     avoid_if_range  => true, # Some proxies have issues with range headers
                              # this stops us attempting to use them
                              # marginally less efficient with other proxies
