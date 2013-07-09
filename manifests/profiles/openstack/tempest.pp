@@ -37,6 +37,11 @@
 #     Floating ip range to use for testing.
 #   [configure_tempest]
 #     Whether tempest should be configured.
+#   [setup_venv]
+#     Whether tempest virtual env should be configured
+#     This can take a very long time and cause timeouts.
+#   [setup_ovs_bridge]
+#     Add an IP to the OVS public bridge interface
 #
 class coi::profiles::openstack::tempest (
   $identity_uri  = join(['http://',hiera('controller_node_public'),':5000/v2.0/'], ""),
@@ -59,7 +64,9 @@ class coi::profiles::openstack::tempest (
   $image_ssh_user    = hiera('tempest_image_ssh_user', 'cirros'),
 
   $floating_range    = hiera('floating_range', '172.16.2.128/28'),
-  $configure_tempest = hiera('configure_tempest', 'true')
+  $configure_tempest = hiera('configure_tempest', 'true'),
+  $setup_venv        = hiera('setup_venv', false),
+  $setup_ovs_bridge  = hiera('setup_ovs_bridge', true)
 )
 {
   class { 'openstack::provision':
@@ -83,6 +90,8 @@ class coi::profiles::openstack::tempest (
     floating_range    => $floating_range,
 
     configure_tempest => $configure_tempest,
+    setup_venv        => $setup_venv,
+    setup_ovs_bridge  => $setup_ovs_bridge,
     require           => [ Service['keystone'],
                            Service['glance-api'],
                            Service['glance-registry']
