@@ -10,20 +10,21 @@ class coi::profiles::cache_server(
   $default_gateway = hiera('default_gateway', false),
   $proxy           = hiera('proxy', undef)
 ) inherits coi::profiles::base {
-
-
+ 
   class { apt-cacher-ng:
-    proxy           => $proxy,
+    proxy     => $proxy,
     avoid_if_range  => true, # Some proxies have issues with range headers
                              # this stops us attempting to use them
                              # marginally less efficient with other proxies
   }
+
 
   # TODO what does this mean?
   if ! $default_gateway {
     # Prefetch the pip packages and put them somewhere the openstack nodes can fetch them
 
     include pip
+    include coi::profiles::params
 
     file {  "/var/www":
       ensure => 'directory',
@@ -39,10 +40,11 @@ class coi::profiles::cache_server(
     } else {
       $proxy_pfx=""
     }
+
     exec { 'pip2pi':
       # Can't use package provider because we're changing its behaviour to use the cache
       command => "${proxy_pfx}/usr/bin/pip install pip2pi",
-      creates => "/usr/local/bin/pip2pi",
+      creates => $::coi::profiles::params::pip2pi_path,
       require => Package['python-pip'],
     }
     Package <| provider=='pip' |> {
@@ -53,7 +55,7 @@ class coi::profiles::cache_server(
 
     exec { 'pip-cache':
       # All the packages that all nodes - build, compute and control - require from pip
-      command => "${proxy_pfx}/usr/local/bin/pip2pi /var/www/packages collectd xenapi django-tagging graphite-web carbon whisper",
+      command => "${proxy_pfx}${coi::profiles::params::pip2pi_path} /var/www/packages collectd xenapi django-tagging graphite-web carbon whisper",
       creates => '/var/www/packages/simple', # It *does*, but you'll want to force a refresh if you change the line above
       require => [Exec['pip2pi'], Package['python-twisted']],
     }
