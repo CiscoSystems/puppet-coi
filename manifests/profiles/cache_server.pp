@@ -11,6 +11,10 @@ class coi::profiles::cache_server(
   $proxy           = hiera('proxy', undef)
 ) inherits coi::profiles::base {
  
+  Exec {
+    path => ['/bin','/usr/bin','/sbin','/usr/sbin','/usr/local/bin']
+  }
+ 
   class { apt-cacher-ng:
     proxy     => $proxy,
     avoid_if_range  => true, # Some proxies have issues with range headers
@@ -43,8 +47,8 @@ class coi::profiles::cache_server(
 
     exec { 'pip2pi':
       # Can't use package provider because we're changing its behaviour to use the cache
-      command => "${proxy_pfx}/usr/bin/pip install pip2pi",
-      creates => $::coi::profiles::params::pip2pi_path,
+      command => "${proxy_pfx}pip install pip2pi",
+      unless => 'which pip2pi',
       require => Package['python-pip'],
     }
     Package <| provider=='pip' |> {
@@ -55,7 +59,7 @@ class coi::profiles::cache_server(
 
     exec { 'pip-cache':
       # All the packages that all nodes - build, compute and control - require from pip
-      command => "${proxy_pfx}${coi::profiles::params::pip2pi_path} /var/www/packages collectd xenapi django-tagging graphite-web carbon whisper",
+      command => "${proxy_pfx}pip2pi /var/www/packages collectd xenapi django-tagging graphite-web carbon whisper",
       creates => '/var/www/packages/simple', # It *does*, but you'll want to force a refresh if you change the line above
       require => [Exec['pip2pi'], Package['python-twisted']],
     }
