@@ -5,7 +5,8 @@ class coi::roles::build_server (
   $enable_cobbler      = hiera('enable_cobbler', $::coi::roles::params::enable_cobbler),
   $enable_cache        = hiera('enable_cache', $::coi::roles::params::enable_cache),
   $enable_monitoring   = hiera('enable_monitoring', true),
-  ){
+) inherits coi::roles::params {
+
   include coi::profiles::puppet::master
 
   if ($enable_monitoring) {
