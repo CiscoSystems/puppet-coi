@@ -101,11 +101,13 @@ UcXHbA==
   elsif ($osfamily == 'redhat') {
 
     if($package_repo == 'cisco_repo') {
-
+      if ! $openstack_repo_location {
+        fail("Parameter openstack_repo_location must be set when package_repo is cisco_repo")
+      }
       # A cisco yum repo to carry any custom patched rpms
       yumrepo { 'cisco-openstack-mirror':
         descr    => 'Cisco Openstack Repository',
-        baseurl  => $location,
+        baseurl  => $openstack_repo_location,
         enabled  => '1',
         gpgcheck => '1',
         gpgkey   => 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Cisco',
