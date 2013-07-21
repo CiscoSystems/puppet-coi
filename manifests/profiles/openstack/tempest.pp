@@ -42,6 +42,13 @@
 #     This can take a very long time and cause timeouts.
 #   [setup_ovs_bridge]
 #     Add an IP to the OVS public bridge interface
+#   [resize_available]
+#     Configures whether or not tempest should run VM resizing tests. These tests
+#     are not supported on the Cirros image.
+#     (Optional) Defaults to true.
+#   [tempest_revision]
+#     The revision of tempest to checkout and use for testing.
+#     (Optional). Defaults to stable/grizzly.
 #
 class coi::profiles::openstack::tempest (
   $identity_uri  = join(['http://',hiera('controller_node_public'),':5000/v2.0/'], ""),
@@ -66,7 +73,10 @@ class coi::profiles::openstack::tempest (
   $floating_range    = hiera('floating_range', '172.16.2.128/28'),
   $configure_tempest = hiera('configure_tempest', 'true'),
   $setup_venv        = hiera('setup_venv', false),
-  $setup_ovs_bridge  = hiera('setup_ovs_bridge', true)
+  $setup_ovs_bridge  = hiera('setup_ovs_bridge', true),
+  # tempest parameters
+  $resize_available  = hiera('resize_available', true),
+  $tempest_revision  = hiera('tempest_revision', 'stable/grizzly')
 )
 {
   class { 'openstack::provision':
@@ -92,6 +102,10 @@ class coi::profiles::openstack::tempest (
     configure_tempest => $configure_tempest,
     setup_venv        => $setup_venv,
     setup_ovs_bridge  => $setup_ovs_bridge,
+
+    resize_available  => $resize_available,
+    version_to_test   => $tempest_revision,
+
     require           => [ Service['keystone'],
                            Service['glance-api'],
                            Service['glance-registry']
