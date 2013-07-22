@@ -46,70 +46,76 @@
 #     Configures whether or not tempest should run VM resizing tests. These tests
 #     are not supported on the Cirros image.
 #     (Optional) Defaults to true.
+#   [change_password_available]
+#     Configures whether or not tempest should run VM update password tests. These tests
+#     are not supported on the cirros image.
+#     (Optional). Defaults to true.
 #   [tempest_revision]
 #     The revision of tempest to checkout and use for testing.
 #     (Optional). Defaults to stable/grizzly.
 #
 class coi::profiles::openstack::tempest (
-  $identity_uri  = join(['http://',hiera('controller_node_public'),':5000/v2.0/'], ""),
+  $identity_uri              = join(
+    ['http://',hiera('controller_node_public'),':5000/v2.0/'], ""),
+  $username                  = hiera('tempest_username', 'user1'),
+  $password                  = hiera('tempest_password', 'user1_password'),
+  $tenant_name               = hiera('tempest_tenant_name', 'tenant1'),
 
-  $username          = hiera('tempest_username', 'user1'),
-  $password          = hiera('tempest_password', 'user1_password'),
-  $tenant_name       = hiera('tempest_tenant_name', 'tenant1'),
+  $alt_username              = hiera('tempest_alt_username', 'user2'),
+  $alt_password              = hiera('tempest_alt_password', 'user2_password'),
+  $alt_tenant_name           = hiera('tempest_alt_tenant_name', 'tenant2'),
 
-  $alt_username      = hiera('tempest_alt_username', 'user2'),
-  $alt_password      = hiera('tempest_alt_password', 'user2_password'),
-  $alt_tenant_name   = hiera('tempest_alt_tenant_name', 'tenant2'),
+  $admin_username            = hiera('admin_username', 'admin'),
+  $admin_password            = hiera('admin_password'),
+  $admin_tenant_name         = hiera('admin_tenant_name', 'admin'),
 
-  $admin_username    = hiera('admin_username', 'admin'),
-  $admin_password    = hiera('admin_password'),
-  $admin_tenant_name = hiera('admin_tenant_name', 'admin'),
+  $image_name                = hiera('tempest_image_name', 'cirros'),
+  $image_source              = hiera('tempest_image_source',
+    'http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img'),
+  $image_ssh_user            = hiera('tempest_image_ssh_user', 'cirros'),
 
-  $image_name        = hiera('tempest_image_name', 'cirros'),
-  $image_source      = hiera('tempest_image_source',
-                  '    http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img'),
-  $image_ssh_user    = hiera('tempest_image_ssh_user', 'cirros'),
-
-  $floating_range    = hiera('floating_range', '172.16.2.128/28'),
-  $configure_tempest = hiera('configure_tempest', 'true'),
-  $setup_venv        = hiera('setup_venv', false),
-  $setup_ovs_bridge  = hiera('setup_ovs_bridge', true),
+  $floating_range            = hiera('floating_range', '172.16.2.128/28'),
+  $configure_tempest         = hiera('configure_tempest', 'true'),
+  $setup_venv                = hiera('setup_venv', false),
+  $setup_ovs_bridge          = hiera('setup_ovs_bridge', true),
   # tempest parameters
-  $resize_available  = hiera('resize_available', true),
-  $tempest_revision  = hiera('tempest_revision', 'stable/grizzly')
+  $resize_available          = hiera('resize_available', true),
+  $change_password_available = hiera('change_password_available', true),
+  $tempest_revision          = hiera('tempest_revision', 'stable/grizzly')
 )
 {
   class { 'openstack::provision':
-    identity_uri      => $identity_uri,
+    identity_uri              => $identity_uri,
 
-    username          => $username,
-    password          => $password,
-    tenant_name       => $tenant_name,
+    username                  => $username,
+    password                  => $password,
+    tenant_name               => $tenant_name,
 
-    alt_username      => $alt_username,
-    alt_password      => $alt_password,
-    alt_tenant_name   => $alt_tenant_name,
+    alt_username              => $alt_username,
+    alt_password              => $alt_password,
+    alt_tenant_name           => $alt_tenant_name,
 
-    admin_username    => $admin_username,
-    admin_password    => $admin_password,
-    admin_tenant_name => $admin_tenant_name,
+    admin_username            => $admin_username,
+    admin_password            => $admin_password,
+    admin_tenant_name         => $admin_tenant_name,
 
-    image_name        => $image_name,
-    image_source      => $image_source,
-    image_ssh_user    => $image_ssh_user,
-    floating_range    => $floating_range,
+    image_name                => $image_name,
+    image_source              => $image_source,
+    image_ssh_user            => $image_ssh_user,
+    floating_range            => $floating_range,
 
-    configure_tempest => $configure_tempest,
-    setup_venv        => $setup_venv,
-    setup_ovs_bridge  => $setup_ovs_bridge,
+    configure_tempest         => $configure_tempest,
+    setup_venv                => $setup_venv,
+    setup_ovs_bridge          => $setup_ovs_bridge,
 
-    resize_available  => $resize_available,
-    version_to_test   => $tempest_revision,
+    resize_available          => $resize_available,
+    change_password_available => $change_password_available,
+    version_to_test           => $tempest_revision,
 
-    require           => [ Service['keystone'],
-                           Service['glance-api'],
-                           Service['glance-registry']
-                         ],
+    require                   => [ Service['keystone'],
+                                   Service['glance-api'],
+                                   Service['glance-registry']
+                                 ],
 
   }
 }
