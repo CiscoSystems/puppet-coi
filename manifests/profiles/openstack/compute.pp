@@ -68,14 +68,4 @@ class coi::profiles::openstack::compute (
 
   class { "naginator::compute_target": }
 
-  # this is an example of something that needs to be
-  # configured only when we use the cisco package repos.
-  # I hope this is considered a temporary fix until we
-  # can make our packages more similar to those in cloud
-  # archive
-  if $package_repo == 'cisco_repo' {
-    realize File['/etc/libvirt/qemu.conf']
-    realize Exec[ '/etc/init.d/libvirt-bin restart']
-  }
-
 }
