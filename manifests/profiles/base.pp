@@ -12,7 +12,6 @@ class coi::profiles::base(
 
   class { ntp:
     servers    => $ntp_servers,
-    ensure     => running,
     autoupdate => true,
   }
 
