@@ -8,6 +8,8 @@ class coi::profiles::monitoring_server(
   #$graphitehost  => hiera('build_node_fqdn', $::fqdn)
 )  inherits coi::profiles::base {
 
+  include coi::profiles::apache
+
   class { 'naginator': }
 
   class { 'graphite':
