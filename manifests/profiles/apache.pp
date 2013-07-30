@@ -3,8 +3,8 @@
 # other components to install their apache
 # service.
 #
-class coi::profiles::apache {
-  class { '::apache':
+coi::profiles::apache {
+  class { 'apache':
     mpm_module => 'prefork',
   }
 }
