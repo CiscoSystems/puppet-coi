@@ -103,8 +103,11 @@ class coi::profiles::cobbler_server(
   $ip               = hiera('cobbler_ip', false),
   $dns_service      = hiera('dns_service', 'dnsmasq'),
   $dhcp_service     = hiera('dhcp_service', 'dnsmasq'),
+  $nodes            = hiera('cobbler_nodes', {}),
 ) inherits coi::profiles::base {
 
+  # create all of the managed nodes
+  create_resources('coi::cobbler_node', $nodes)
 
   if ! $node_dns {
     $node_dns_real = $cobbler_node_ip
