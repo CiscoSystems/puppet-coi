@@ -10,11 +10,11 @@ class coi::profiles::cache_server(
   $default_gateway = hiera('default_gateway', false),
   $proxy           = hiera('proxy', undef)
 ) inherits coi::profiles::base {
- 
+
   Exec {
     path => ['/bin','/usr/bin','/sbin','/usr/sbin','/usr/local/bin']
   }
- 
+
   class { apt-cacher-ng:
     proxy     => $proxy,
     avoid_if_range  => true, # Some proxies have issues with range headers
@@ -65,7 +65,7 @@ class coi::profiles::cache_server(
     }
 
 
-   include apache
+   include coi::profiles::apache
 
    #
    # TODO - this is one of the few differneces between this and ciscos code
