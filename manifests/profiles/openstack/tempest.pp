@@ -81,7 +81,7 @@ class coi::profiles::openstack::tempest (
   # tempest parameters
   $resize_available          = hiera('resize_available', true),
   $change_password_available = hiera('change_password_available', true),
-  $tempest_revision          = hiera('tempest_revision', 'stable/grizzly')
+  $tempest_repo_revision     = hiera('tempest_repo_revision', 'stable/grizzly')
 )
 {
   class { 'openstack::provision':
@@ -110,7 +110,7 @@ class coi::profiles::openstack::tempest (
 
     resize_available          => $resize_available,
     change_password_available => $change_password_available,
-    version_to_test           => $tempest_revision,
+    tempest_repo_revision     => $tempest_repo_revision,
 
     require                   => [ Service['keystone'],
                                    Service['glance-api'],
