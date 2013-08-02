@@ -5,7 +5,6 @@
 #
 class coi::profiles::openstack::auth_file (
   $admin_password           = hiera('admin_password'),
-  $keystone_admin_token     = hiera('keystone_admin_token'),
   $controller_node_internal = hiera('controller_node_internal')
 ) {
 
@@ -15,11 +14,10 @@ class coi::profiles::openstack::auth_file (
   class { 'openstack::client':
     ceilometer => false,
   }
-  
+
 
   class { '::openstack::auth_file':
     admin_password       => $admin_password,
-    keystone_admin_token => $keystone_admin_token,
     controller_node      => $controller_node_internal,
   }
 
