@@ -1,5 +1,7 @@
 class coi::roles::compute {
 
-  include coi::profiles::openstack::compute
+  include kickstack::compute
+  include coi::profiles::openstack::base
+  include naginator::compute_target
 
 }
