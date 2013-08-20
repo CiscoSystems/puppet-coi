@@ -6,9 +6,6 @@ class coi::profiles::openstack::base (
   $domain_name              = hiera('domain_name'),
   # connection information for build node
   $build_node_name          = hiera('build_node_name'),
-  # connection information for controller
-  $controller_hostname      = hiera('controller_hostname'),
-  $controller_node_internal = hiera('controller_node_internal'),
   # information about which repos to use
   $package_repo             = hiera('package_repo', 'cisco_repo'),
   $openstack_release        = hiera('openstack_release', 'grizzly-proposed'),
@@ -150,12 +147,6 @@ UcXHbA==
   }
   # (the equivalent work for apt is done by the cobbler boot, which sets this up as
   # a part of the installation.)
-
-
-  # /etc/hosts entries for the controller nodes
-  host { $controller_hostname:
-    ip => $controller_node_internal
-  }
 
   class { 'collectd':
     #graphitehost         => $build_node_fqdn,
