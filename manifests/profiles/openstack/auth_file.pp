@@ -5,7 +5,7 @@
 #
 class coi::profiles::openstack::auth_file (
   $admin_password           = hiera('admin_password'),
-  $controller_node_internal = hiera('controller_node_internal')
+  $controller_node_internal = hiera('auth_internal_address')
 ) {
 
   # WARNING - this may cause a conflict b/c this installs the collecd agent
