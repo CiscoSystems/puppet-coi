@@ -86,9 +86,15 @@ UcXHbA==
       } else {
         $cloud_archive_location = 'http://ubuntu-cloud.archive.canonical.com/ubuntu'
       }
-      class { 'openstack::repo::uca':
-        release =>  $openstack_release,
-        repo    =>  $ubuntu_repo,
+      if $openstack_release == 'havana' {
+        class { 'openstack::repo::uca':
+          release =>  $openstack_release,
+          repo    =>  $ubuntu_repo,
+        }
+      } else {
+        class { 'openstack::repo::uca':
+          release =>  $openstack_release,
+        }
       }
     } else {
       fail("Unsupported package repo ${package_repo}")
