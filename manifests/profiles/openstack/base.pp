@@ -6,13 +6,11 @@ class coi::profiles::openstack::base (
   $domain_name              = hiera('domain_name'),
   # connection information for build node
   $build_node_name          = hiera('build_node_name'),
-  # connection information for controller
-  $controller_hostname      = hiera('controller_hostname'),
-  $controller_node_internal = hiera('controller_node_internal'),
   # information about which repos to use
   $package_repo             = hiera('package_repo', 'cisco_repo'),
-  $openstack_release        = hiera('openstack_release', 'grizzly-proposed'),
+  $openstack_release        = hiera('openstack_release', 'grizzly'),
   $openstack_repo_location  = hiera('openstack_repo_location', false),
+  $ubuntu_repo              = hiera('openstack_ubuntu_repo', 'updates'),
   # optional external services
   $default_gateway          = hiera('default_gateway', false),
   $proxy                    = hiera('proxy', false),
@@ -88,11 +86,15 @@ UcXHbA==
       } else {
         $cloud_archive_location = 'http://ubuntu-cloud.archive.canonical.com/ubuntu'
       }
-      apt::source { 'openstack_cloud_archive':
-        location          => $cloud_archive_location,
-        release           => $openstack_release,
-        repos             => 'main',
-        required_packages => 'ubuntu-cloud-keyring',
+      if $openstack_release == 'havana' {
+        class { 'openstack::repo::uca':
+          release =>  $openstack_release,
+          repo    =>  $ubuntu_repo,
+        }
+      } else {
+        class { 'openstack::repo::uca':
+          release =>  $openstack_release,
+        }
       }
     } else {
       fail("Unsupported package repo ${package_repo}")
@@ -150,12 +152,6 @@ UcXHbA==
   }
   # (the equivalent work for apt is done by the cobbler boot, which sets this up as
   # a part of the installation.)
-
-
-  # /etc/hosts entries for the controller nodes
-  host { $controller_hostname:
-    ip => $controller_node_internal
-  }
 
   class { 'collectd':
     #graphitehost         => $build_node_fqdn,
