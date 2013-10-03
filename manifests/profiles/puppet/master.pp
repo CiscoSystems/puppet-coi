@@ -16,7 +16,7 @@ class coi::profiles::puppet::master inherits coi::profiles::base {
   # the cisco ones. Perhaps whether or
   # not to use these should be a hiera lookup?
   include puppet::repo::puppetlabs
-  include coi::profiles::apache
+  include apache
 
   # the puppetdb package should not be installed
   # before our certificate is generated
