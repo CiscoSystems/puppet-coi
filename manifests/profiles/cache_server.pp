@@ -65,7 +65,7 @@ class coi::profiles::cache_server(
     }
 
 
-   include coi::profiles::apache
+   include apache
 
    #
    # TODO - this is one of the few differneces between this and ciscos code
