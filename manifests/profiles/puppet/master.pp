@@ -11,11 +11,6 @@ class coi::profiles::puppet::master inherits coi::profiles::base {
   # installs puppet
   # I think I want to assume a puppet 3.x install
 
-  # use the puppetlabs upstream repos
-  # this may need to be configurable to use
-  # the cisco ones. Perhaps whether or
-  # not to use these should be a hiera lookup?
-  include puppet::repo::puppetlabs
   include apache
 
   # the puppetdb package should not be installed
