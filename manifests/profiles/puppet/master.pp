@@ -2,14 +2,24 @@
 # this profile configures a machine
 # as a puppetmaster.
 #
-# It also sets up the repos used to install
-# Puppet (this may not be required)
-#
-class coi::profiles::puppet::master inherits coi::profiles::base {
+# [*puppetlabs_repo*]
+# (optional) Sets the apt/yum repository from which
+# puppet master will be installed to be puppetlabs
+# Default: true
+
+class coi::profiles::puppet::master (
+  $puppetlabs_repo = hiera('puppetlabs_repo', true)
+) inherits coi::profiles::base {
 
   $puppet_master_bind_address = hiera('puppet_master_address', $::fqdn)
   # installs puppet
   # I think I want to assume a puppet 3.x install
+
+  # if this is not set, make sure nodes are all pointing at an apt/yum repo
+  # that has puppet > 3.2
+  if $puppetlabs_repo {
+    include puppet::repo::puppetlabs
+  }
 
   include apache
 
