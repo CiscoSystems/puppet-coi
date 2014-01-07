@@ -139,7 +139,7 @@ class coi::profiles::cobbler_server(
   if ($interface_bonding == 'true'){
     $bonding = "echo 'bonding' >> /target/etc/modules"
   } else {
-    $bonding = ''
+    $bonding = 'echo "no bonding configured"'
   }
 
   $interfaces_file=regsubst(template('coi/interfaces.erb'), '$', "\\n\\", "G")
