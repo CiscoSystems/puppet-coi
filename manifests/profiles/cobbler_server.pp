@@ -95,6 +95,12 @@ class coi::profiles::cobbler_server(
   # that all nodes will be installed on the same device name
   $install_drive    = hiera('install_drive', '/dev/sda'),
 
+  # Select partition sizes for / and /var if desired.
+  $root_part_size   = hiera('root_part_size', '32768'),
+  $var_part_size    = hiera('var_part_size', '131072'),
+  $enable_var       = hiera('enable_var', true),
+  $enable_vol_space = hiera('enable_vol_space', true),
+
   ### Advanced Users Configuration ###
   # These four settings typically do not need to be changed
   # In the default deployment, the build node functions as the DNS and static DHCP server for
@@ -179,7 +185,11 @@ echo -e "%s
     expert_disk      => true,
     diskpart         => [$install_drive],
     boot_disk        => $install_drive,
-    autostart_puppet => $autostart_puppet
+    autostart_puppet => $autostart_puppet,
+    root_part_size   => $root_part_size,
+    var_part_size    => $var_part_size,
+    enable_var       => $enable_var,
+    enable_vol_space => $enable_vol_space
   }
 
   class { 'cobbler':
