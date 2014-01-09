@@ -158,7 +158,7 @@ class coi::profiles::cobbler_server(
   cobbler::ubuntu::preseed { "cisco-preseed":
     admin_user       => $admin_user,
     password_crypted => $password_crypted,
-    packages         => "openssh-server vim vlan lvm2 ntp puppet rubygems",
+    packages         => "openssh-server vim vlan lvm2 ntp rubygems",
     ntp_server       => $build_node_fqdn,
     late_command     => sprintf('
 sed -e "/logdir/ a pluginsync=true" -i /target/etc/puppet/puppet.conf ; \
