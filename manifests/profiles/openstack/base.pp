@@ -12,7 +12,7 @@ class coi::profiles::openstack::base (
   $openstack_repo_location  = hiera('openstack_repo_location', false),
   $ubuntu_repo              = hiera('openstack_ubuntu_repo', 'updates'),
   # optional external services
-  $default_gateway          = hiera('default_gateway', false),
+  $default_gateway          = hiera('node_gateway', false),
   $proxy                    = hiera('proxy', false),
   $public_interface         = hiera('public_interface')
 ) inherits coi::profiles::base {
