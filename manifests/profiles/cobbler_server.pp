@@ -110,6 +110,7 @@ class coi::profiles::cobbler_server(
   $dns_service      = hiera('dns_service', 'dnsmasq'),
   $dhcp_service     = hiera('dhcp_service', 'dnsmasq'),
   $nodes            = hiera('cobbler_nodes', {}),
+  $time_zone        = hiera('time_zone', 'UTC'),
 ) inherits coi::profiles::base {
 
   # create all of the managed nodes
@@ -166,6 +167,7 @@ class coi::profiles::cobbler_server(
     password_crypted => $password_crypted,
     packages         => "openssh-server vim vlan lvm2 ntp rubygems",
     ntp_server       => $build_node_fqdn,
+    time_zone        => $time_zone,
     late_command     => sprintf('
 sed -e "/logdir/ a pluginsync=true" -i /target/etc/puppet/puppet.conf ; \
 sed -e "/logdir/ a server=%s" -i /target/etc/puppet/puppet.conf ; \
