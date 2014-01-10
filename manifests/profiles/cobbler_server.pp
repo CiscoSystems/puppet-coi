@@ -110,6 +110,23 @@ class coi::profiles::cobbler_server(
   $dns_service      = hiera('dns_service', 'dnsmasq'),
   $dhcp_service     = hiera('dhcp_service', 'dnsmasq'),
   $nodes            = hiera('cobbler_nodes', {}),
+
+  # If you want to ensure that a specific Ubuntu kernel version is installed
+  # and that it is the default GRUB boot selection when nodes boot for the
+  # first time, use this setting to to specify the name of the
+  # linux-image package you want to load (ex: "linux-image-3.2.0-51-generic").
+  # Note that this feature has only been tested with Ubuntu's generic
+  # kernel images.
+  $load_kernel_pkg = hiera('load_kernel_pkg', false),
+
+  # If you wish to specify kernel boot parameters, add them here.
+  # The text you enter here will be placed in the /etc/default/grub
+  # file's GRUB_CMDLINE_LINUX_DEFAULT line.  It is suggested that you
+  # use the 'elevator=deadline' paramter as shown below if you plan
+  # to use iSCSI-backed Cinder due to known kernel issues with cloning
+  # volumes (refer to https://bugs.launchpad.net/bugs/1212250).
+  $kernel_boot_params = hiera('kernel_boot_params',
+                              'quiet splash')
 ) inherits coi::profiles::base {
 
   # create all of the managed nodes
@@ -128,6 +145,31 @@ class coi::profiles::cobbler_server(
   }
 
   $build_node_fqdn = "${build_node_name}.${domain_name}"
+
+  # Enable the loading of a custom kernel package if requested.
+  if $load_kernel_pkg {
+    $kernel_cmd = "in-target /usr/bin/apt-get install -y $load_kernel_pkg ; \\
+export kernel_ver=`echo '$load_kernel_pkg'|/bin/sed 's/linux-image-//'` ; \\
+export prev_starts_at=`grep -n Previous /target/boot/grub/grub.cfg | /target/usr/bin/cut -f1 -d:` ; \\
+export kern_starts_at=`grep -n \"Ubuntu, with Linux \$kernel_ver'\" /target/boot/grub/grub.cfg|/target/usr/bin/cut -f1 -d:` ; \\
+if [ \"\$prev_starts_at\" ] && [ \"\$prev_starts_at\" -lt \"\$kern_starts_at\" ] ; \\
+then \\
+in-target /bin/sed -i \"/GRUB_DEFAULT=/ s/[0-9]/\\\"Previous Linux versions>Ubuntu, with Linux \$kernel_ver\\\"/\" /etc/default/grub ; \\
+else \\
+in-target /bin/sed -i \"/GRUB_DEFAULT=/ s/[0-9]/\\\"Ubuntu, with Linux \$kernel_ver\\\"/\" /etc/default/grub ; \\
+fi ; \\
+in-target /usr/sbin/update-grub ; "
+  } else {
+    $kernel_cmd = ''
+  }
+
+  # Enable custom kernel boot commands if requested.
+  if $kernel_boot_params {
+    $kernel_boot_params_cmd ="in-target /bin/sed -i \"s/GRUB_CMDLINE_LINUX_DEFAULT=\\\"[a-zA-Z ]\\\+\\\"/GRUB_CMDLINE_LINUX_DEFAULT=\\\"$kernel_boot_params\\\"/\" /etc/default/grub ; \\
+in-target /usr/sbin/update-grub ; "
+  } else {
+    $kernel_boot_params_cmd = ''
+  }
 
   # Enable ipv6 router edvertisement
   # TODO, I would like more docs here about why this is required
@@ -179,8 +221,10 @@ echo "net.ipv6.conf.all.accept_ra=%s" >> /target/etc/sysctl.conf ; \
 ifconf="`tail +11 </etc/network/interfaces`" ; \
 echo -e "%s
 " > /target/etc/network/interfaces ; \
+%s \
+%s \
 ', $cobbler_node_fqdn, $cobbler_node_fqdn, $bonding,
-     $ra,$ra,$ra,$ra, $interfaces_file),
+      $ra,$ra,$ra,$ra, $interfaces_file, $kernel_cmd, $kernel_boot_params_cmd),
     proxy            => "http://${cobbler_node_fqdn}:3142/",
     expert_disk      => true,
     diskpart         => [$install_drive],
