@@ -223,6 +223,7 @@ echo "net.ipv6.conf.all.accept_ra=%s" >> /target/etc/sysctl.conf ; \
 ifconf="`tail +11 </etc/network/interfaces`" ; \
 echo -e "%s
 " > /target/etc/network/interfaces ; \
+sed -e "s/^ //g" -i /target/etc/network/interfaces ; \
 %s \
 %s \
 ', $cobbler_node_fqdn, $cobbler_node_fqdn, $bonding,
