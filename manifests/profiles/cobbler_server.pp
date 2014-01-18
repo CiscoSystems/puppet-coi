@@ -127,7 +127,16 @@ class coi::profiles::cobbler_server(
   # to use iSCSI-backed Cinder due to known kernel issues with cloning
   # volumes (refer to https://bugs.launchpad.net/bugs/1212250).
   $kernel_boot_params = hiera('kernel_boot_params',
-                              'quiet splash')
+                              'quiet splash'),
+
+  # If you wish to specify a list of modules that should be added to the
+  # /etc/modules file so they are automatically loaded into the kernel
+  # at boot time, add them as a list here.  It is suggested that you
+  # use at least the 8021q module (support for VLAN tagging which is
+  # required by many Neutron plugins and provider network scenarios)
+  # and the vhost_net which substantially improves KVM's networking
+  # performance.
+  $kernel_module_list = hiera('kernel_module_list', ['8021q', 'vhost_net'])
 ) inherits coi::profiles::base {
 
   # create all of the managed nodes
@@ -172,6 +181,15 @@ in-target /usr/sbin/update-grub ; "
     $kernel_boot_params_cmd = ''
   }
 
+  # Enable autoloading of a list of custom kernel modules if requested.
+  # Note that this list gets put into an "echo" command in the preseed
+  # file's late_command, so we don't join it with a true newline here.
+  if $kernel_module_list {
+    $kernel_module_string = join($kernel_module_list, "\\n\\\n")
+  } else {
+    $kernel_module_string = ''
+  }
+
   # Enable ipv6 router edvertisement
   # TODO, I would like more docs here about why this is required
   $ipv6_ra          = hiera('ipv6_ra', '')
@@ -214,7 +232,8 @@ in-target /usr/sbin/update-grub ; "
 sed -e "/logdir/ a pluginsync=true" -i /target/etc/puppet/puppet.conf ; \
 sed -e "/logdir/ a server=%s" -i /target/etc/puppet/puppet.conf ; \
 echo -e "server %s iburst" > /target/etc/ntp.conf ; \
-echo "8021q" >> /target/etc/modules ; \
+echo -e "%s" >> /target/etc/modules ; \
+sed -e "s/^ //g" -i /target/etc/modules ; \
 %s ; \
 echo "net.ipv6.conf.default.autoconf=%s" >> /target/etc/sysctl.conf ; \
 echo "net.ipv6.conf.default.accept_ra=%s" >> /target/etc/sysctl.conf ; \
@@ -226,7 +245,7 @@ echo -e "%s
 sed -e "s/^ //g" -i /target/etc/network/interfaces ; \
 %s \
 %s \
-', $cobbler_node_fqdn, $cobbler_node_fqdn, $bonding,
+', $cobbler_node_fqdn, $cobbler_node_fqdn, $kernel_module_string, $bonding,
       $ra,$ra,$ra,$ra, $interfaces_file, $kernel_cmd, $kernel_boot_params_cmd),
     proxy            => "http://${cobbler_node_fqdn}:3142/",
     expert_disk      => true,
