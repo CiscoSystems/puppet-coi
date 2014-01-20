@@ -101,6 +101,26 @@ class coi::profiles::cobbler_server(
   $enable_var       = hiera('enable_var', true),
   $enable_vol_space = hiera('enable_vol_space', true),
 
+  ### Cisco Repository Setup ###
+  # These parameters will be used to set up the apt repo supplied
+  # by Cobbler to nodes being provisioned.  
+  # * The 'openstack_release' parameter should correspond to the
+  #   OpenStack release name you want to install (e.g. 'havana').
+  # * The 'openstack_repo_location' parameter should be the complete
+  #   URL of the repository you want to use to fetch OpenStack
+  #   packages (e.g. http://openstack-repo.cisco.com/openstack/cisco).
+  # * The 'supplemental_repo' parameter should be the complete URL
+  #   of the repository you want to use for supplemental packages
+  #   (e.g. http://openstack-repo.cisco.com/openstack/cisco_supplemental).
+  # * The 'pocket' parameter should be the repo pocket to use for both
+  #   the supplmental and main repos.  Setting this to an empty string
+  #   will point you to the stable pocket, or you can specify the
+  #   proposed pocket ('-proposed') or a snapshot ('/snapshots/h.0').
+  $openstack_release       = 'havana',
+  $openstack_repo_location = 'http://openstack-repo.cisco.com/openstack/cisco',
+  $supplemental_repo       = 'http://openstack-repo.cisco.com/openstack/cisco_supplemental',
+  $pocket                  = '',
+
   ### Advanced Users Configuration ###
   # These four settings typically do not need to be changed
   # In the default deployment, the build node functions as the DNS and static DHCP server for
@@ -212,6 +232,24 @@ in-target /usr/sbin/update-grub ; "
   $interfaces_file=regsubst(template('coi/interfaces.erb'), '$', "\\n\\", "G")
   $cobbler_node_fqdn = "${build_node_name}.${domain_name}"
 
+  # Detect and correct for Bug #1269856.  h.0 users may inadvertently get
+  # hold of this code and have a main repository URL specified in their
+  # data/hiera_data/vendor/cisco_coi_common.yaml and/or
+  # data/hiera_data/enable_ha/true.yaml files that doesn't include
+  # '/cisco' at the end.  We need to munge this to prevent a backward
+  # compat breakage.
+  if ($openstack_repo_location == 'http://openstack-repo.cisco.com/openstack') {
+    $openstack_repo_location_real = "${openstack_repo_location}/cisco"
+    warning("openstack_repo_location has changed format and was set to a known bad value (see bug #1269856), setting to $openstck_repo_location_real")
+  }
+  elsif ($openstack_repo_location == 'ftp://ftpeng.cisco.com/openstack'){
+    $openstack_repo_location_real = "${openstack_repo_location}/cisco"
+    warning("openstack_repo_location has changed format and was set to a known bad value (see bug #1269856), setting to $openstck_repo_location_real")
+  }
+  else {
+    $openstack_repo_location_real = $openstack_repo_location
+  }
+
   ##### END VARIABLE SETUP #####
 
   ##### START CONFIGURATION #####
@@ -223,12 +261,16 @@ in-target /usr/sbin/update-grub ; "
 
   ####### Preseed File Configuration #######
   cobbler::ubuntu::preseed { "cisco-preseed":
-    admin_user       => $admin_user,
-    password_crypted => $password_crypted,
-    packages         => "openssh-server vim vlan lvm2 ntp rubygems",
-    ntp_server       => $build_node_fqdn,
-    time_zone        => $time_zone,
-    late_command     => sprintf('
+    admin_user              => $admin_user,
+    password_crypted        => $password_crypted,
+    packages                => "openssh-server vim vlan lvm2 ntp rubygems",
+    ntp_server              => $build_node_fqdn,
+    time_zone               => $time_zone,
+    openstack_release       => $openstack_release,
+    openstack_repo_location => $openstack_repo_location_real,
+    supplemental_repo       => $supplemental_repo,
+    pocket                  => $pocket,
+    late_command            => sprintf('
 sed -e "/logdir/ a pluginsync=true" -i /target/etc/puppet/puppet.conf ; \
 sed -e "/logdir/ a server=%s" -i /target/etc/puppet/puppet.conf ; \
 echo -e "server %s iburst" > /target/etc/ntp.conf ; \
