@@ -133,23 +133,6 @@ UcXHbA==
     Yumrepo <| |> -> Package <| |>
   }
 
-  include pip
-
-  # Ensure that the pip packages are fetched appropriately when we're using an
-  # install where there's no direct connection to the net from the openstack
-  # nodes
-  if ! $default_gateway {
-    Package <| provider=='pip' |> {
-      install_options => "--index-url=http://${build_node_name}/packages/simple/",
-    }
-  } else {
-    if($proxy) {
-      Package <| provider=='pip' |> {
-        # TODO(ijw): untested
-        install_options => "--proxy=$proxy"
-      }
-    }
-  }
   # (the equivalent work for apt is done by the cobbler boot, which sets this up as
   # a part of the installation.)
 
