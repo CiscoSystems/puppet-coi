@@ -242,10 +242,6 @@ in-target /usr/sbin/update-grub ; "
     $openstack_repo_location_real = "${openstack_repo_location}/cisco"
     warning("openstack_repo_location has changed format and was set to a known bad value (see bug #1269856), setting to $openstck_repo_location_real")
   }
-  elsif ($openstack_repo_location == 'ftp://ftpeng.cisco.com/openstack'){
-    $openstack_repo_location_real = "${openstack_repo_location}/cisco"
-    warning("openstack_repo_location has changed format and was set to a known bad value (see bug #1269856), setting to $openstck_repo_location_real")
-  }
   else {
     $openstack_repo_location_real = $openstack_repo_location
   }
