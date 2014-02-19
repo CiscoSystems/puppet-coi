@@ -3,7 +3,7 @@
 # that should be applied to all nodes
 #
 # == Parameters
-#   [ntp_server]
+#   [ntp_servers]
 #     List of ntp servers to use for time synchronization.
 #
 class coi::profiles::base(
@@ -11,8 +11,7 @@ class coi::profiles::base(
 ) {
 
   class { ntp:
-    servers    => $ntp_servers,
-    autoupdate => true,
+    servers => $ntp_servers,
   }
 
   #
