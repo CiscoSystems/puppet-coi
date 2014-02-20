@@ -86,4 +86,25 @@ class coi::profiles::puppet::master (
     # I only want to validate with http
     strict_validation => false,
   }
+
+  # Add puppetdb storeconfigs settings to puppet.conf [main] also
+  # so that puppet agent runs will use storeconfigs
+  Ini_setting {
+    path    => $::puppet::params::puppet_conf,
+    require => File[$::puppet::params::puppet_conf],
+    notify  => Service['httpd'],
+    section => 'main',
+    ensure  => present,
+  }
+
+  ini_setting { 'puppetmainstoreconfigs':
+    setting => 'storeconfigs',
+    value   => 'true',
+  }
+
+  ini_setting { 'puppetmainstoreconfigs_backend':
+    setting => 'storeconfigs_backend',
+    value   => 'puppetdb',
+  }
+
 }
