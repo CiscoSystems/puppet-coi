@@ -250,10 +250,11 @@ in-target /usr/sbin/update-grub ; "
 
   ##### START CONFIGURATION #####
 
-  host { $build_node_fqdn:
+  ensure_resource ( 'host', $build_node_fqdn, {
     host_aliases => $build_node_name,
     ip           => $cobbler_node_ip
-  }
+    }
+  )
 
   ####### Preseed File Configuration #######
   cobbler::ubuntu::preseed { "cisco-preseed":
