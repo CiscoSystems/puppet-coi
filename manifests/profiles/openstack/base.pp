@@ -140,4 +140,9 @@ UcXHbA==
     #graphitehost         => $build_node_fqdn,
     #management_interface => $public_interface,
   }
+
+  # puppetlabs-mongo has a dep on ruby's json lib
+  package { 'ruby-json':
+    ensure => present,
+  }
 }
