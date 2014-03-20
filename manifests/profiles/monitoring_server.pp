@@ -10,8 +10,6 @@ class coi::profiles::monitoring_server(
 
   include apache
 
-  class { 'naginator': }
-
   class { 'graphite':
     gr_apache_port   => 8190,
  #  graphitehost  => $graphitehost,
