@@ -314,8 +314,13 @@ sed -e "s/^ //g" -i /target/etc/network/interfaces ; \
   }
 
   # This will load the Ubuntu Server OS into cobbler
-  # COE supprts only Ubuntu precise x86_64
+  # COI uses precise for Essex through Havana, and trusty for Icehouse
+
   cobbler::ubuntu { "precise":
+    proxy => $proxy,
+  }
+
+  cobbler::ubuntu { "trusty":
     proxy => $proxy,
   }
 }
