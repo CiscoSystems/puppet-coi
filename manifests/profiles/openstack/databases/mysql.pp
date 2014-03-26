@@ -5,11 +5,11 @@
 #
 #  [enabled_services]
 #    List of services that should have databases created.
-#    Accepts elements: cinder,glance,keystone,nova, network, and all.
+#    Accepts elements: cinder,glance,keystone,nova,network and ceilometer.
 #
 class coi::profiles::openstack::databases::mysql(
   $enabled_services = [
-    'cinder', 'glance', 'keystone', 'nova', 'neutron'
+    'cinder', 'glance', 'keystone', 'nova', 'neutron', 'ceilometer'
   ],
 ) {
 
