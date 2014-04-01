@@ -14,9 +14,4 @@ class coi::profiles::base(
     servers => $ntp_servers,
   }
 
-  #
-  # TODO I need to look more into this file to ensure
-  # that it should be applied everywhere
-  class { "naginator::base_target": }
-
 }
