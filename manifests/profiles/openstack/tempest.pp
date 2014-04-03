@@ -71,7 +71,7 @@ class coi::profiles::openstack::tempest (
 
   $image_name                = hiera('tempest_image_name', 'cirros'),
   $image_source              = hiera('tempest_image_source',
-    'http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img'),
+    'http://download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img'),
   $image_ssh_user            = hiera('tempest_image_ssh_user', 'cirros'),
 
   $floating_range            = hiera('floating_range', '172.16.2.128/28'),
