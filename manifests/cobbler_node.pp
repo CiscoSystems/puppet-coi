@@ -18,7 +18,7 @@
 #   [power_password]
 #      (optional) Password of 'power_user'. Defaults to password'
 #   [power_type]
-#     (optional) Type of power control used. Defaults to ipmitool.
+#     (optional) Type of power control used. Defaults to ipmilan.
 #
 define coi::cobbler_node(
   $node_type,
@@ -28,7 +28,7 @@ define coi::cobbler_node(
   $power_id       = undef,
   $power_user     = 'admin',
   $power_password = 'password',
-  $power_type     = 'ipmitool'
+  $power_type     = 'ipmilan'
 ) {
 
   cobbler::node { $name:
