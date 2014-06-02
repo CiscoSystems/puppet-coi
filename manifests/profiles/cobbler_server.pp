@@ -156,7 +156,11 @@ class coi::profiles::cobbler_server(
   # required by many Neutron plugins and provider network scenarios)
   # and the vhost_net which substantially improves KVM's networking
   # performance.
-  $kernel_module_list = hiera('kernel_module_list', ['8021q', 'vhost_net'])
+  $kernel_module_list = hiera('kernel_module_list', ['8021q', 'vhost_net']),
+
+  # Allow specification of default packages to be installed on top of
+  # the Ubuntu minimal install defined by the cobbler preseed
+  $packages = hiera('packages', 'lvm2 ntp openssh-server vim vlan'),
 ) inherits coi::profiles::base {
 
   # create all of the managed nodes
@@ -260,7 +264,7 @@ in-target /usr/sbin/update-grub ; "
   cobbler::ubuntu::preseed { "cisco-preseed":
     admin_user              => $admin_user,
     password_crypted        => $password_crypted,
-    packages                => "openssh-server vim vlan lvm2 ntp",
+    packages                => $packages,
     ntp_server              => $build_node_fqdn,
     time_zone               => $time_zone,
     openstack_release       => $openstack_release,
