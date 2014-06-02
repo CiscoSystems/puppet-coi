@@ -156,7 +156,11 @@ class coi::profiles::cobbler_server(
   # required by many Neutron plugins and provider network scenarios)
   # and the vhost_net which substantially improves KVM's networking
   # performance.
-  $kernel_module_list = hiera('kernel_module_list', ['8021q', 'vhost_net'])
+  $kernel_module_list = hiera('kernel_module_list', ['8021q', 'vhost_net']),
+
+  # Enable expert_drive to allow fine-grained control of partitioning
+  # on nodes installed using Cobbler
+  $expert_disk = hiera('expert_disk', true),
 ) inherits coi::profiles::base {
 
   # create all of the managed nodes
@@ -287,7 +291,7 @@ sed -e "s/^ //g" -i /target/etc/network/interfaces ; \
 ', $cobbler_node_fqdn, $cobbler_node_fqdn, $kernel_module_string, $bonding,
       $ra,$ra,$ra,$ra, $interfaces_file, $kernel_cmd, $kernel_boot_params_cmd),
     proxy            => "http://${cobbler_node_fqdn}:3142/",
-    expert_disk      => true,
+    expert_disk      => $expert_disk,
     diskpart         => [$install_drive],
     boot_disk        => $install_drive,
     autostart_puppet => $autostart_puppet,
