@@ -158,6 +158,10 @@ class coi::profiles::cobbler_server(
   # performance.
   $kernel_module_list = hiera('kernel_module_list', ['8021q', 'vhost_net']),
 
+  # Allow specification of default packages to be installed on top of
+  # the Ubuntu minimal install defined by the cobbler preseed
+  $packages = hiera('packages', 'lvm2 ntp openssh-server vim vlan'),
+
   # Enable expert_drive to allow fine-grained control of partitioning
   # on nodes installed using Cobbler
   $expert_disk = hiera('expert_disk', true),
@@ -264,7 +268,7 @@ in-target /usr/sbin/update-grub ; "
   cobbler::ubuntu::preseed { "cisco-preseed":
     admin_user              => $admin_user,
     password_crypted        => $password_crypted,
-    packages                => "openssh-server vim vlan lvm2 ntp",
+    packages                => $packages,
     ntp_server              => $build_node_fqdn,
     time_zone               => $time_zone,
     openstack_release       => $openstack_release,
