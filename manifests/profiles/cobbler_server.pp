@@ -165,6 +165,10 @@ class coi::profiles::cobbler_server(
   # Enable expert_drive to allow fine-grained control of partitioning
   # on nodes installed using Cobbler
   $expert_disk = hiera('expert_disk', true),
+
+  # Enable promiscuous mode on interfaces so VRRP advertisements work
+  # when configuring load balancers for HA
+  $enable_promisc_vrrp = hiera('enable_promisc_vrrp', false),
 ) inherits coi::profiles::base {
 
   # create all of the managed nodes
@@ -294,15 +298,16 @@ sed -e "s/^ //g" -i /target/etc/network/interfaces ; \
 %s \
 ', $cobbler_node_fqdn, $cobbler_node_fqdn, $kernel_module_string, $bonding,
       $ra,$ra,$ra,$ra, $interfaces_file, $kernel_cmd, $kernel_boot_params_cmd),
-    proxy            => "http://${cobbler_node_fqdn}:3142/",
-    expert_disk      => $expert_disk,
-    diskpart         => [$install_drive],
-    boot_disk        => $install_drive,
-    autostart_puppet => $autostart_puppet,
-    root_part_size   => $root_part_size,
-    var_part_size    => $var_part_size,
-    enable_var       => $enable_var,
-    enable_vol_space => $enable_vol_space
+    proxy               => "http://${cobbler_node_fqdn}:3142/",
+    expert_disk         => $expert_disk,
+    enable_promisc_vrrp => $enable_promisc_vrrp,
+    diskpart            => [$install_drive],
+    boot_disk           => $install_drive,
+    autostart_puppet    => $autostart_puppet,
+    root_part_size      => $root_part_size,
+    var_part_size       => $var_part_size,
+    enable_var          => $enable_var,
+    enable_vol_space    => $enable_vol_space
   }
 
   class { 'cobbler':
